@@ -1,0 +1,198 @@
+// SPDX-License-Identifier: GPL-2.0-only
+
+/dts-v1/;
+
+#include "msm8916-pm8916.dtsi"
+
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	model = "JZ08AU-XPA-7J-R3";
+	compatible = "jz08au,aurora", "qcom,msm8916";
+	chassis-type = "embedded";
+
+	aliases {
+		mmc0 = &sdhc_1; /* eMMC */
+		serial0 = &blsp_uart2;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	reserved-memory {
+		/*
+		 * The signed WCNSS firmware must be loaded at the fixed
+		 * address 0x8b600000. The modem firmware fits just below it
+		 * at the default base, so only wcnss_mem needs to be moved.
+		 */
+		/delete-node/ wcnss;
+
+		wcnss_mem: wcnss@8b600000 {
+			reg = <0x0 0x8b600000 0x0 0x600000>;
+			no-map;
+		};
+	};
+
+	backlight: backlight {
+		compatible = "gpio-backlight";
+		gpios = <&pm8916_mpps 4 GPIO_ACTIVE_HIGH>;
+		pinctrl-0 = <&backlight_default>;
+		pinctrl-names = "default";
+	};
+
+	battery: battery {
+		compatible = "simple-battery";
+		charge-full-design-microamp-hours = <3000000>;
+		voltage-min-design-microvolt = <3400000>;
+		voltage-max-design-microvolt = <4200000>;
+	};
+};
+
+&blsp_spi4 {
+	pinctrl-0 = <&blsp_spi4_cs0_default &lcd_default>;
+	pinctrl-1 = <&blsp_spi4_sleep>;
+	pinctrl-names = "default", "sleep";
+	status = "okay";
+
+	panel@0 {
+		compatible = "jz08au,aurora-st7735s", "panel-mipi-dbi-spi";
+		reg = <0>;
+		spi-max-frequency = <16000000>;
+		spi-cpol;
+		spi-cpha;
+		write-only;
+
+		dc-gpios = <&tlmm 116 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&tlmm 118 GPIO_ACTIVE_HIGH>;
+
+		power-supply = <&pm8916_l17>;
+		io-supply = <&pm8916_l6>;
+
+		width-mm = <26>;
+		height-mm = <26>;
+
+		panel-timing {
+			hactive = <128>;
+			vactive = <128>;
+			hback-porch = <2>;
+			vback-porch = <3>;
+			clock-frequency = <0>;
+			hfront-porch = <0>;
+			vfront-porch = <0>;
+			hsync-len = <0>;
+			vsync-len = <0>;
+		};
+	};
+};
+
+&blsp_uart2 {
+	status = "okay";
+};
+
+&mpss {
+	pinctrl-0 = <&sim_ctrl_default>;
+	pinctrl-names = "default";
+	status = "okay";
+};
+
+&pm8916_charger {
+	monitored-battery = <&battery>;
+	qcom,fast-charge-safe-current = <720000>;
+	qcom,fast-charge-safe-voltage = <4200000>;
+	status = "okay";
+};
+
+&pm8916_bms {
+	monitored-battery = <&battery>;
+	power-supplies = <&pm8916_charger>;
+	status = "okay";
+};
+
+&pm8916_rpm_regulators {
+	pm8916_l17: l17 {
+		regulator-min-microvolt = <2850000>;
+		regulator-max-microvolt = <2850000>;
+	};
+};
+
+&sdhc_1 {
+	status = "okay";
+};
+
+&usb {
+	dr_mode = "peripheral";
+	extcon = <&pm8916_charger>;
+	status = "okay";
+};
+
+&usb_hs_phy {
+	extcon = <&pm8916_charger>;
+};
+
+&wcnss {
+	status = "okay";
+};
+
+&wcnss_iris {
+	compatible = "qcom,wcn3620";
+};
+
+&pm8916_mpps {
+	backlight_default: mpp4-state {
+		pins = "mpp4";
+		function = "sink";
+		drive-strength = <7>; /* 40 mA current sink */
+		output-low;
+	};
+};
+
+&tlmm {
+	/*
+	 * Unlike the SoC default, the panel uses the hardware chip-select
+	 * (gpio14 as blsp_spi4) instead of a GPIO chip-select.
+	 */
+	blsp_spi4_cs0_default: blsp-spi4-cs0-state {
+		spi-pins {
+			pins = "gpio12", "gpio13", "gpio15";
+			function = "blsp_spi4";
+			drive-strength = <12>;
+			bias-disable;
+		};
+
+		cs-pins {
+			pins = "gpio14";
+			function = "blsp_spi4";
+			drive-strength = <2>;
+			bias-disable;
+		};
+	};
+
+	lcd_default: lcd-state {
+		pins = "gpio116", "gpio118";
+		function = "gpio";
+		drive-strength = <8>;
+		bias-disable;
+	};
+
+	/*
+	 * Passive SIM routing matching the stock configuration: gpio1
+	 * (sim3 switch) high; gpio20 (sim hotplug detect), gpio22 (sim1
+	 * switch) and gpio23 (sim2 switch) low.
+	 */
+	sim_ctrl_default: sim-ctrl-default-state {
+		sim-low-pins {
+			pins = "gpio20", "gpio22", "gpio23";
+			function = "gpio";
+			bias-disable;
+			output-low;
+		};
+
+		sim-high-pins {
+			pins = "gpio1";
+			function = "gpio";
+			bias-disable;
+			output-high;
+		};
+	};
+};
