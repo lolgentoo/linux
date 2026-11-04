@@ -857,6 +857,8 @@ patternProperties:
     description: JTY
   "^jutouch,.*":
     description: JuTouch Technology Co., Ltd.
+  "^jz08au,.*":
+    description: JZ08AU (white-label MSM8916 modem/MiFi platform)
   "^kam,.*":
     description: Kamstrup A/S
   "^karo,.*":
