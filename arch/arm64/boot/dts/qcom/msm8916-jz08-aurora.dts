@@ -43,9 +43,20 @@
 
 	battery: battery {
 		compatible = "simple-battery";
-		charge-full-design-microamp-hours = <3000000>;
-		voltage-min-design-microvolt = <3400000>;
+		voltage-min-design-microvolt = <3700000>;
 		voltage-max-design-microvolt = <4200000>;
+		energy-full-design-microwatt-hours = <79550000>;
+		charge-full-design-microamp-hours = <2150000>;
+
+		ocv-capacity-celsius = <25>;
+		ocv-capacity-table-0 = <4150000 100>, <4120000 95>, <4085000 90>,
+			<4050000 85>, <4015000 80>, <3950000 75>, <3906000 70>,
+			<3864000 65>, <3826000 60>, <3809000 55>, <3798000 50>,
+			<3787000 45>, <3776000 40>, <3755000 35>, <3735000 30>,
+			<3715000 25>, <3680000 20>, <3620000 16>, <3583000 13>,
+			<3563000 11>, <3553000 10>, <3533000 9>, <3520000 8>,
+			<3490000 7>, <3460000 6>, <3440000 5>, <3410000 4>,
+			<3390000 3>, <3370000 2>, <3360000 1>, <3350000 0>;
 	};
 };
 
