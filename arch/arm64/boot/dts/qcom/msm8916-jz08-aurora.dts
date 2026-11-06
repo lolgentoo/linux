@@ -74,6 +74,7 @@
 		dc-gpios = <&tlmm 116 GPIO_ACTIVE_HIGH>;
 		reset-gpios = <&tlmm 118 GPIO_ACTIVE_HIGH>;
 
+		backlight = <&backlight>;
 		power-supply = <&pm8916_l17>;
 		io-supply = <&pm8916_l6>;
 
