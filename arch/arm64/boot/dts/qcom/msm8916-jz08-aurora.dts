@@ -49,6 +49,14 @@
 	};
 };
 
+&bam_dmux {
+	status = "okay";
+};
+
+&bam_dmux_dma {
+	status = "okay";
+};
+
 &blsp_spi4 {
 	pinctrl-0 = <&blsp_spi4_cs0_default &lcd_default>;
 	pinctrl-1 = <&blsp_spi4_sleep>;
@@ -90,9 +98,18 @@
 	status = "okay";
 };
 
+&mba_mem {
+	status = "okay";
+};
+
 &mpss {
 	pinctrl-0 = <&sim_ctrl_default>;
 	pinctrl-names = "default";
+	status = "okay";
+};
+
+&mpss_mem {
+	reg = <0x0 0x86800000 0x0 0x4e00000>;
 	status = "okay";
 };
 
